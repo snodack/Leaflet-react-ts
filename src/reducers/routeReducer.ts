@@ -1,6 +1,16 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+type Route = {
+  markers: number[][];
+  polyline: number[][] | null;
+};
+
+type RouteState = {
+  routes: Route[];
+  selectedRouteId: number | null;
+};
+
+const initialState: RouteState = {
   routes: [
     {
       markers: [
@@ -34,19 +44,22 @@ const routeSlice = createSlice({
   name: "route",
   initialState,
   reducers: {
-    setSelectedRouteId(state, action) {
+    setSelectedRouteId(state, action: PayloadAction<number>) {
       state.selectedRouteId = action.payload;
     },
-    setPolyline(state, action) {
+    setPolyline(state, action: PayloadAction<{ routeId: number; polyline: number[][] }>) {
       const { routeId, polyline } = action.payload;
       state.routes[routeId].polyline = polyline;
     },
-    addMarker(state, action) {
+    addMarker(state, action: PayloadAction<{ routeId: number; marker: number[] }>) {
       const { routeId, marker } = action.payload;
       state.routes[routeId].markers.push(marker);
+    },
+    fetchPolyline(state, action: PayloadAction<{ routeId: number; markers: number[][] }>) {
+      // This will be handled by the saga
     },
   },
 });
 
-export const { setSelectedRouteId, setPolyline, addMarker } = routeSlice.actions;
+export const { setSelectedRouteId, setPolyline, addMarker, fetchPolyline } = routeSlice.actions;
 export default routeSlice.reducer;

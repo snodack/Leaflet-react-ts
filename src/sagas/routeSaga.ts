@@ -1,20 +1,19 @@
-import { call, put, takeLatest } from "redux-saga/effects";
-import { setPolyline } from "@/reducers/routeReducer";
-import { getPolylineFromAPI } from "@/services/routeService";
+import { takeLatest, call, put, StrictEffect } from 'redux-saga/effects';
+import { PayloadAction } from '@reduxjs/toolkit';
+import { fetchPolyline, setPolyline } from '@/reducers/routeReducer';
+import { getPolylineFromAPI } from '@/services/routeService';
 
-function* fetchPolyline(action: any) {
+function* handleFetchPolyline(action: PayloadAction<{ routeId: number; markers: number[][] }>): Generator<StrictEffect, void, number[][]> {
   const { routeId, markers } = action.payload;
   try {
-    //@ts-ignore
     const polyline = yield call(getPolylineFromAPI, markers);
-
     yield put(setPolyline({ routeId, polyline }));
   } catch (error) {
-    let message = error as unknown as string;
-    throw new Error(message);
+    console.error("Error fetching polyline:", error);
+    // handle error properly here
   }
 }
 
 export function* watchFetchPolyline() {
-  yield takeLatest("route/fetchPolyline", fetchPolyline);
+  yield takeLatest(fetchPolyline.type, handleFetchPolyline);
 }

@@ -10,7 +10,7 @@ export const getPolylineFromAPI = async (markers: number[][]) => {
     .map((marker: any) => `${marker[1]},${marker[0]}`)
     .join(";");
 
-  const url = `${API_BASE_URL}/route/v1/${profile}/${coordinates}`;
+  const url = `${API_BASE_URL}/route/v1/${profile}/${coordinates}?geometries=polyline`;
 
   try {
     const response = await axios.get(url);
@@ -20,7 +20,7 @@ export const getPolylineFromAPI = async (markers: number[][]) => {
 
       const decodedCoordinates = decodePolyline(encoded);
 
-      return decodedCoordinates.map((coord) => [
+      return decodedCoordinates.map((coord: { latitude: number; longitude: number; }) => [
         coord.latitude,
         coord.longitude,
       ]);
