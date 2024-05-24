@@ -2,13 +2,11 @@ import { useDispatch, useSelector } from "react-redux";
 import MapComponent from "./components/MapComponent";
 import RouteTable from "./components/RouteTable";
 import { useEffect } from "react";
-import { setSelectedRouteId } from "./reducers/routeReducer";
+import { setSelectedRouteId, addMarker } from "./reducers/routeReducer";
 
 const App = () => {
   const routes = useSelector((state: any) => state.route.routes);
-  const selectedRouteId = useSelector(
-    (state: any) => state.route.selectedRouteId
-  );
+  const selectedRouteId = useSelector((state: any) => state.route.selectedRouteId);
   const selectedRoute = routes[selectedRouteId];
 
   const dispatch = useDispatch();
@@ -25,6 +23,13 @@ const App = () => {
   const handleRowClick = (index: any) => {
     dispatch(setSelectedRouteId(index));
   };
+
+  const handleAddMarker = (marker: any) => {
+    if (selectedRouteId !== null) {
+      dispatch(addMarker({ routeId: selectedRouteId, marker }));
+    }
+  };
+
   return (
     <div className="container">
       <RouteTable
@@ -32,7 +37,7 @@ const App = () => {
         selectedRouteId={selectedRouteId}
         onRowClick={handleRowClick}
       />
-      <MapComponent selectedRoute={selectedRoute} />
+      <MapComponent selectedRoute={selectedRoute} onAddMarker={handleAddMarker} />
     </div>
   );
 };

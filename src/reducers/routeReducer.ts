@@ -41,8 +41,12 @@ const routeSlice = createSlice({
       const { routeId, polyline } = action.payload;
       state.routes[routeId].polyline = polyline;
     },
+    addMarker(state, action) {
+      const { routeId, marker } = action.payload;
+      state.routes[routeId].markers.push(marker);
+    },
   },
 });
 
-export const { setSelectedRouteId, setPolyline } = routeSlice.actions;
+export const { setSelectedRouteId, setPolyline, addMarker } = routeSlice.actions;
 export default routeSlice.reducer;
