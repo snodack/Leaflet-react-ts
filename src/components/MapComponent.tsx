@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Polyline, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap } from "react-leaflet";
 import { useEffect, useState } from "react";
 import L from "leaflet";
 import MapContent from "@/components/MapContent";
@@ -20,6 +20,7 @@ interface ClickHandlerProps {
 interface MapComponentProps {
   selectedRoute: Route | null;
   onAddMarker: (marker: MarkerType) => void;
+  center: MarkerType; // Добавлен новый пропс
 }
 
 // Функция для создания нумерованных иконок
@@ -41,19 +42,21 @@ const ClickHandler = ({ onAddMarker }: ClickHandlerProps) => {
   return null;
 };
 
-const MapComponent = ({ selectedRoute, onAddMarker }: MapComponentProps) => {
-  const [mapCenter, setMapCenter] = useState(() => centerMaps(selectedRoute));
+const MapComponent = ({ selectedRoute, onAddMarker, center }: MapComponentProps) => {
+  const [mapCenter, setMapCenter] = useState(center);
   const [mapBounds, setMapBounds] = useState(() => boundsMaps(selectedRoute));
 
   useEffect(() => {
     if (selectedRoute) {
       setMapCenter(centerMaps(selectedRoute));
       setMapBounds(boundsMaps(selectedRoute));
+    } else {
+      setMapCenter(center);
     }
-  }, [selectedRoute]);
+  }, [selectedRoute, center]);
 
   return (
-    <MapContainer center={mapCenter} zoom={8}>
+    <MapContainer center={mapCenter} zoom={8} whenCreated={(map) => map.setView(mapCenter)}>
       <MapContent bounds={mapBounds} />
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <ClickHandler onAddMarker={onAddMarker} />

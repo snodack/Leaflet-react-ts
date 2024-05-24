@@ -1,14 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type Route = {
-  markers: number[][];
-  polyline: number[][] | null;
-};
+// Типы для компонентов
+type MarkerType = [number, number];
 
-type RouteState = {
+interface Route {
+  markers: MarkerType[];
+  polyline: MarkerType[] | null;
+}
+
+interface RouteState {
   routes: Route[];
   selectedRouteId: number | null;
-};
+}
 
 const initialState: RouteState = {
   routes: [
@@ -47,19 +50,24 @@ const routeSlice = createSlice({
     setSelectedRouteId(state, action: PayloadAction<number>) {
       state.selectedRouteId = action.payload;
     },
-    setPolyline(state, action: PayloadAction<{ routeId: number; polyline: number[][] }>) {
+    setPolyline(state, action: PayloadAction<{ routeId: number; polyline: MarkerType[] }>) {
       const { routeId, polyline } = action.payload;
       state.routes[routeId].polyline = polyline;
     },
-    addMarker(state, action: PayloadAction<{ routeId: number; marker: number[] }>) {
+    addMarker(state, action: PayloadAction<{ routeId: number; marker: MarkerType }>) {
       const { routeId, marker } = action.payload;
       state.routes[routeId].markers.push(marker);
     },
-    fetchPolyline(state, action: PayloadAction<{ routeId: number; markers: number[][] }>) {
+    fetchPolyline(state, action: PayloadAction<{ routeId: number; markers: MarkerType[] }>) {
       // This will be handled by the saga
     },
+    clearRoute(state, action: PayloadAction<number>) {
+      const routeId = action.payload;
+      state.routes[routeId].markers = [];
+      state.routes[routeId].polyline = null;
+    }
   },
 });
 
-export const { setSelectedRouteId, setPolyline, addMarker, fetchPolyline } = routeSlice.actions;
+export const { setSelectedRouteId, setPolyline, addMarker, fetchPolyline, clearRoute } = routeSlice.actions;
 export default routeSlice.reducer;

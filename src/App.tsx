@@ -2,10 +2,9 @@ import { useDispatch, useSelector } from "react-redux";
 import MapComponent from "./components/MapComponent";
 import RouteTable from "./components/RouteTable";
 import { useEffect } from "react";
-import { setSelectedRouteId, addMarker, fetchPolyline } from "./reducers/routeReducer";
+import { setSelectedRouteId, addMarker, fetchPolyline, clearRoute } from "./reducers/routeReducer";
 import { AppDispatch, RootState } from "./store";
 
-// Типы для компонентов
 type MarkerType = [number, number];
 
 interface Route {
@@ -38,13 +37,22 @@ const App = () => {
     }
   };
 
+  const handleClearRoute = () => {
+    if (selectedRouteId !== null) {
+      dispatch(clearRoute(selectedRouteId));
+    }
+  };
+
   return (
     <div className="container">
-      <RouteTable
-        routes={routes}
-        selectedRouteId={selectedRouteId}
-        onRowClick={handleRowClick}
-      />
+      <div className="sidebar">
+        <RouteTable
+          routes={routes}
+          selectedRouteId={selectedRouteId}
+          onRowClick={handleRowClick}
+        />
+        <button onClick={handleClearRoute}>Очистить маршрут</button>
+      </div>
       {selectedRoute && (
         <MapComponent selectedRoute={selectedRoute} onAddMarker={handleAddMarker} />
       )}
