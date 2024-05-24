@@ -5,8 +5,16 @@ import { useEffect } from "react";
 import { setSelectedRouteId, addMarker, fetchPolyline } from "./reducers/routeReducer";
 import { AppDispatch, RootState } from "./store";
 
+// Типы для компонентов
+type MarkerType = [number, number];
+
+interface Route {
+  markers: MarkerType[];
+  polyline: MarkerType[] | null;
+}
+
 const App = () => {
-  const routes = useSelector((state: RootState) => state.route.routes);
+  const routes = useSelector((state: RootState) => state.route.routes as Route[]);
   const selectedRouteId = useSelector((state: RootState) => state.route.selectedRouteId);
   const selectedRoute = selectedRouteId !== null ? routes[selectedRouteId] : null;
 
@@ -16,13 +24,13 @@ const App = () => {
     if (selectedRouteId !== null && selectedRoute && !selectedRoute.polyline) {
       dispatch(fetchPolyline({ routeId: selectedRouteId, markers: selectedRoute.markers }));
     }
-  }, [dispatch, selectedRoute, selectedRouteId]);
+  }, [dispatch, selectedRouteId, selectedRoute?.polyline]);
 
   const handleRowClick = (index: number) => {
     dispatch(setSelectedRouteId(index));
   };
 
-  const handleAddMarker = (marker: number[]) => {
+  const handleAddMarker = (marker: MarkerType) => {
     if (selectedRouteId !== null && selectedRoute !== null) {
       const newMarkers = [...selectedRoute.markers, marker];
       dispatch(addMarker({ routeId: selectedRouteId, marker }));

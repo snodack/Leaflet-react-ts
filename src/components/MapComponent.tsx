@@ -1,33 +1,68 @@
 import { MapContainer, TileLayer, Marker, Polyline, useMapEvents } from "react-leaflet";
+import { useEffect, useState } from "react";
+import L from "leaflet";
 import MapContent from "@/components/MapContent";
 import boundsMaps from "@/utilities/bounds";
 import centerMaps from "@/utilities/centerMaps";
 
-const ClickHandler = ({ onAddMarker }: any) => {
+// Типы для компонентов
+type MarkerType = [number, number];
+
+interface Route {
+  markers: MarkerType[];
+  polyline: MarkerType[] | null;
+}
+
+interface ClickHandlerProps {
+  onAddMarker: (marker: MarkerType) => void;
+}
+
+interface MapComponentProps {
+  selectedRoute: Route | null;
+  onAddMarker: (marker: MarkerType) => void;
+}
+
+// Функция для создания нумерованных иконок
+const createNumberedIcon = (number: number) => {
+  return L.divIcon({
+    html: `<div style="background-color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">${number}</div>`,
+    className: "",
+    iconSize: [24, 24],
+  });
+};
+
+const ClickHandler = ({ onAddMarker }: ClickHandlerProps) => {
   useMapEvents({
     click(e) {
-      const newMarker = [e.latlng.lat, e.latlng.lng];
+      const newMarker: MarkerType = [e.latlng.lat, e.latlng.lng];
       onAddMarker(newMarker);
     },
   });
   return null;
 };
 
-const MapComponent = ({ selectedRoute, onAddMarker }: any) => {
-  const center = centerMaps(selectedRoute);
-  const bounds = boundsMaps(selectedRoute);
+const MapComponent = ({ selectedRoute, onAddMarker }: MapComponentProps) => {
+  const [mapCenter, setMapCenter] = useState(() => centerMaps(selectedRoute));
+  const [mapBounds, setMapBounds] = useState(() => boundsMaps(selectedRoute));
+
+  useEffect(() => {
+    if (selectedRoute) {
+      setMapCenter(centerMaps(selectedRoute));
+      setMapBounds(boundsMaps(selectedRoute));
+    }
+  }, [selectedRoute]);
 
   return (
-    <MapContainer center={center} zoom={8}>
-      <MapContent bounds={bounds} />
+    <MapContainer center={mapCenter} zoom={8}>
+      <MapContent bounds={mapBounds} />
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <ClickHandler onAddMarker={onAddMarker} />
       {selectedRoute?.polyline && (
         <Polyline positions={selectedRoute.polyline} color="green" />
       )}
       {selectedRoute?.markers &&
-        selectedRoute.markers.map((marker: any, index: any) => (
-          <Marker key={index} position={marker} />
+        selectedRoute.markers.map((marker, index) => (
+          <Marker key={index} position={marker} icon={createNumberedIcon(index + 1)} />
         ))}
     </MapContainer>
   );
